@@ -7,7 +7,7 @@ pipeline {
     }
 
     stages {
-        stage('Process Objectives for Selected Month') {
+        stage('Process Objectives') {
             steps {
                 script {
                     // Define objectives for each month
@@ -74,42 +74,43 @@ pipeline {
                         ]
                     ]
 
-                    def selectedMonth = params.MONTH
+                    def months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER']
+                    def currentMonthIndex = months.indexOf(params.MONTH)
                     def completedObjectives = []
-                    def pendingObjectives = objectives[selectedMonth]
 
-                    // Loop through objectives for the selected month
-                    for (task in pendingObjectives) {
-                        def result = input message: "Have you completed the objective: '${task}'?", \
-                                     parameters: [choice(name: 'Completion Status', choices: ['Completed', 'Not Completed'], description: 'Select the status')]
+                    // Loop through all months starting from the selected month
+                    for (int i = currentMonthIndex; i < currentMonthIndex + 12; i++) {
+                        def month = months[i % 12]
+                        def monthObjectives = objectives[month]
+                        def monthCompleted = []
 
-                        if (result == 'Completed') {
-                            completedObjectives << task
+                        echo "Processing objectives for ${month}"
+
+                        // Process objectives for the current month
+                        for (task in monthObjectives) {
+                            def result = input message: "Have you completed the objective: '${task}'?", \
+                                         parameters: [choice(name: 'Completion Status', choices: ['Completed', 'Not Completed'], description: 'Select the status')]
+
+                            if (result == 'Completed') {
+                                monthCompleted << task
+                            }
+                        }
+
+                        completedObjectives += monthCompleted
+
+                        // Monthly summary
+                        echo "Summary for ${month}:"
+                        echo "Completed Objectives:"
+                        for (task in monthCompleted) {
+                            echo "- ${task}"
                         }
                     }
 
-                    echo "Summary for ${selectedMonth}:"
-                    echo "Completed Objectives:"
+                    // Final summary
+                    echo "Overall Objectives Completed:"
                     for (task in completedObjectives) {
                         echo "- ${task}"
                     }
-
-                    echo "Pending Objectives:"
-                    for (task in pendingObjectives - completedObjectives) {
-                        echo "- ${task}"
-                    }
-                }
-            }
-        }
-
-        stage('Move to Next Month') {
-            steps {
-                script {
-                    def months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER']
-                    def currentMonthIndex = months.indexOf(params.MONTH)
-                    def nextMonth = months[(currentMonthIndex + 1) % months.size()]
-
-                    echo "Moving to the next month: ${nextMonth}. Restart the pipeline for ${nextMonth}."
                 }
             }
         }
@@ -117,7 +118,7 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline execution finished. You can restart it for the next month.'
+            echo 'Pipeline execution finished. All months have been processed.'
         }
     }
 }
