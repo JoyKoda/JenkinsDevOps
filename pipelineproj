@@ -2,127 +2,74 @@ pipeline {
     agent any
 
     parameters {
-        choice(name: 'MONTH', choices: ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'], description: 'Select the month to start the process')
-        string(name: 'DAY', defaultValue: '1', description: 'Enter the day of the month (e.g., 1, 15, 25)')
+        choice(name: 'START_MONTH', choices: 'JANUARY\nFEBRUARY\nMARCH\nAPRIL\nMAY\nJUNE\nJULY\nAUGUST\nSEPTEMBER\nOCTOBER\nNOVEMBER\nDECEMBER', description: 'Choisissez le mois de départ')
+        string(name: 'START_DAY', defaultValue: '1', description: 'Entrez le jour de départ (1-31)')
     }
 
     stages {
         stage('Initialize') {
             steps {
                 script {
-                    // Objectives and month list defined as local variables
-                    def objectives = [
-                        'JANUARY': [
-                            'Buy a Diary if still not the case.',
-                            'Write about your feeling of the past years.',
-                            'Write about your daily experience.'
-                        ],
-                        'FEBRUARY': [
-                            'Change the furniture arrangement.',
-                            'Buy and dispose some/new plants.',
-                            'Buy a new and more flexible desk (sit-stand).'
-                        ],
-                        'MARCH': [
-                            'Exercise more (make yourself a program that you have to respect).',
-                            'Eat better (healthy meals, local ingredients, less meat,...).',
-                            'Have more time for yourself.'
-                        ],
-                        'APRIL': [
-                            'Helping an elderly to cross the street.',
-                            'Give clothes to a charity for children.',
-                            'Bring breakfast for colleagues at the office.'
-                        ],
-                        'MAY': [
-                            'Take dance lessons (whatever the dance is, learn it !).',
-                            'Sign up for Marathon (or semi-marathon).',
-                            'Take a trip with someone you never had (friend, family member, partner).'
-                        ],
-                        'JUNE': [
-                            'Visit parent’s home.',
-                            'Organise a trip with your friends.',
-                            '3 restaurants with your girlfriend.'
-                        ],
-                        'JULY': [
-                            'Enjoy a Summer festival.',
-                            'Have a party with your relatives.',
-                            'Go to a concert of one of your friend’s favorite artists.'
-                        ],
-                        'AUGUST': [
-                            'Find a hotel near the sea for a week-end.',
-                            'Rent a van in order to go to the destination.',
-                            'Buy camping equipment.'
-                        ],
-                        'SEPTEMBER': [
-                            'Find a few hiking trails near your place.',
-                            'Find relatives with whom you will go.',
-                            'Choose two hikes you will go on with them.'
-                        ],
-                        'OCTOBER': [
-                            'Learn a new language.',
-                            'Read 3 books.',
-                            'Learn a manual activity (origami, calligraphy, lock picking).'
-                        ],
-                        'NOVEMBER': [
-                            'Find an instrument that you like.',
-                            'Take classes and lessons to learn better.',
-                            'Record a cover for a song that you like and show it to your relatives.'
-                        ],
-                        'DECEMBER': [
-                            'Create a daily breathing program (meditation).',
-                            'Attend a yoga class.',
-                            'Ask those you love to come take a yoga class with you.'
-                        ]
+                    def goalsByMonth = [
+                        JANUARY: ["Buy a Diary if still not the case", "Write about your feeling of the past years", "Write about your daily experience"],
+                        FEBRUARY: ["Change the furniture arrangement", "Buy and dispose some/new plants", "Buy a new and more flexible desk (sit-stand)"],
+                        MARCH: ["Exercise more", "Eat better", "Have more time for yourself"],
+                        APRIL: ["Helping an elderly to cross the street", "Give clothes to a charity for children", "Bring breakfast for colleagues at the office"],
+                        MAY: ["Take dance lessons", "Sign up for Marathon", "Take a trip with someone you never had"],
+                        JUNE: ["Visit parent’s home", "Organise a trip with your friends", "3 restaurants with your girlfriend"],
+                        JULY: ["Enjoy a Summer festival", "Have a party with your relatives", "Go to a concert of one of your friend’s favorite artists"],
+                        AUGUST: ["Find a hotel near the sea for a week-end", "Rent a van in order to go to the destination", "Buy camping equipment"],
+                        SEPTEMBER: ["Find a few hiking trails near your place", "Find relatives with whom you will go", "Choose two hikes you will go on with them"],
+                        OCTOBER: ["Learn a new language", "Read 3 books", "Learn a manual activity (origami, calligraphy, lock picking)"],
+                        NOVEMBER: ["Find an instrument that you like", "Take classes and lessons to learn better", "Record a cover for a song that you like and show it to your relatives"],
+                        DECEMBER: ["Create a daily breathing program (meditation)", "Attend a yoga class", "Ask those you love to come take a yoga class with you"]
                     ]
 
-                    def months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER']
-
-                    // Pass data to the next stages
-                    currentBuild.description = "Starting from: ${params.MONTH}"
-                    currentBuild.rawBuild.metaClass.getObjectives = { -> objectives }
-                    currentBuild.rawBuild.metaClass.getMonths = { -> months }
+                    env.GOALS_BY_MONTH = goalsByMonth
+                    env.START_MONTH_INDEX = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'].indexOf(params.START_MONTH)
+                    env.USER_PROGRESS = [:]
                 }
             }
         }
 
-        // Create a stage dynamically for each month
-        stage('Process Each Month') {
+        stage('Execute Goals') {
             steps {
                 script {
-                    def months = currentBuild.rawBuild.metaClass.getMonths()
-                    def objectives = currentBuild.rawBuild.metaClass.getObjectives()
-                    def currentMonthIndex = months.indexOf(params.MONTH)
+                    def months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER']
+                    def startIndex = env.START_MONTH_INDEX as Integer
+                    def goalsByMonth = env.GOALS_BY_MONTH
 
-                    for (int i = currentMonthIndex; i < currentMonthIndex + 12; i++) {
-                        def month = months[i % 12]
-                        def monthObjectives = objectives[month]
+                    for (int i = startIndex; i < months.size(); i++) {
+                        def currentMonth = months[i]
+                        def goals = goalsByMonth[currentMonth]
 
-                        stage("${month} Objectives") {
-                            steps {
-                                script {
-                                    echo "Processing objectives for ${month}"
+                        echo "Executing for month: ${currentMonth}"
 
-                                    for (task in monthObjectives) {
-                                        def result = input message: "Have you completed the objective: '${task}'?",
-                                                     parameters: [choice(name: 'Completion Status', choices: ['Completed', 'Not Completed'], description: 'Select the status')]
-
-                                        if (result == 'Completed') {
-                                            echo "Objective completed: ${task}"
-                                        } else {
-                                            echo "Objective not completed: ${task}"
-                                        }
-                                    }
-                                }
-                            }
+                        input message: "Voici les objectifs pour ${currentMonth}", parameters: goals.collect { goal ->
+                            booleanParam(name: goal, defaultValue: false, description: goal)
                         }
+
+                        script {
+                            def completedGoals = [:]
+                            goals.each { goal ->
+                                completedGoals[goal] = params[goal]
+                            }
+
+                            env.USER_PROGRESS[currentMonth] = completedGoals
+                        }
+
+                        echo "Progress for ${currentMonth}: ${env.USER_PROGRESS[currentMonth]}"
                     }
                 }
             }
         }
-    }
 
-    post {
-        always {
-            echo 'Pipeline execution finished. All months have been processed.'
+        stage('Save Progress') {
+            steps {
+                script {
+                    echo "Final Progress: ${env.USER_PROGRESS}"
+                }
+            }
         }
     }
 }
