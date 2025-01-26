@@ -11,7 +11,7 @@ pipeline {
             steps {
                 script {
                     // Define objectives for each month
-                    env.OBJECTIVES = new groovy.json.JsonBuilder([
+                    def objectives = [
                         'JANUARY': [
                             'Buy a Diary if still not the case.',
                             'Write about your feeling of the past years.',
@@ -72,9 +72,14 @@ pipeline {
                             'Attend a yoga class.',
                             'Ask those you love to come take a yoga class with you.'
                         ]
-                    ]).toString()
+                    ]
 
-                    env.MONTHS = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER']
+                    def months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER']
+
+                    // Store objectives and months as global variables
+                    currentBuild.description = "Starting from: ${params.MONTH}"
+                    currentBuild.env.OBJECTIVES = objectives
+                    currentBuild.env.MONTHS = months
                 }
             }
         }
@@ -83,11 +88,13 @@ pipeline {
         stage('Process Each Month') {
             steps {
                 script {
-                    def currentMonthIndex = env.MONTHS.indexOf(params.MONTH)
+                    def months = currentBuild.env.MONTHS
+                    def objectives = currentBuild.env.OBJECTIVES
+                    def currentMonthIndex = months.indexOf(params.MONTH)
 
                     for (int i = currentMonthIndex; i < currentMonthIndex + 12; i++) {
-                        def month = env.MONTHS[i % 12]
-                        def monthObjectives = new groovy.json.JsonSlurper().parseText(env.OBJECTIVES)[month]
+                        def month = months[i % 12]
+                        def monthObjectives = objectives[month]
 
                         stage("${month} Objectives") {
                             steps {
