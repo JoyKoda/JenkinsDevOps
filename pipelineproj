@@ -10,7 +10,7 @@ pipeline {
         stage('Initialize') {
             steps {
                 script {
-                    // Define objectives for each month
+                    // Objectives and month list defined as local variables
                     def objectives = [
                         'JANUARY': [
                             'Buy a Diary if still not the case.',
@@ -76,10 +76,10 @@ pipeline {
 
                     def months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER']
 
-                    // Store objectives and months as global variables
+                    // Pass data to the next stages
                     currentBuild.description = "Starting from: ${params.MONTH}"
-                    currentBuild.env.OBJECTIVES = objectives
-                    currentBuild.env.MONTHS = months
+                    currentBuild.rawBuild.metaClass.getObjectives = { -> objectives }
+                    currentBuild.rawBuild.metaClass.getMonths = { -> months }
                 }
             }
         }
@@ -88,8 +88,8 @@ pipeline {
         stage('Process Each Month') {
             steps {
                 script {
-                    def months = currentBuild.env.MONTHS
-                    def objectives = currentBuild.env.OBJECTIVES
+                    def months = currentBuild.rawBuild.metaClass.getMonths()
+                    def objectives = currentBuild.rawBuild.metaClass.getObjectives()
                     def currentMonthIndex = months.indexOf(params.MONTH)
 
                     for (int i = currentMonthIndex; i < currentMonthIndex + 12; i++) {
@@ -102,7 +102,7 @@ pipeline {
                                     echo "Processing objectives for ${month}"
 
                                     for (task in monthObjectives) {
-                                        def result = input message: "Have you completed the objective: '${task}'?", \
+                                        def result = input message: "Have you completed the objective: '${task}'?",
                                                      parameters: [choice(name: 'Completion Status', choices: ['Completed', 'Not Completed'], description: 'Select the status')]
 
                                         if (result == 'Completed') {
