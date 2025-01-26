@@ -1,0 +1,57 @@
+```pipeline {
+    agent any 
+
+    parameters {
+        string(name: 'NAME', description: 'Please tell me your name?')
+        choice(name: 'MONTH', choices: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], description: 'Choose the month')
+        choice(name: 'DAY', choices: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'], description: 'Choose the day accordingly to the month')
+    }
+    
+    stages {
+
+        stage('Set Goals for the month') {
+            steps {
+                script {
+
+                    def booleanGoals = []
+
+                    switch(params.MONTH) {
+
+                        case 'January':
+                            booleanGoals = [ 
+                                booleanParam(name: "BUY_DIARY", description: "Have you bought your diary?"),
+                                booleanParam(name: "QUOTE", description: "Have you written a quote that matches your mood?")
+                            ]
+                            break
+
+stage('Check Goals for the day') {
+            steps {
+                script { 
+
+                    switch (params.MONTH) {
+
+                        case 'January':
+
+                            if (params.BUY_DIARY?.toBoolean()) {
+                                echo "Congratulations! You bought your diary and you're off to a great start!"
+                            } else {
+                                if (day < 5) {
+                                    echo "Don't forget to buy a diary! Starting early will help you achieve your January goal."
+                                } else if (day == 5) {
+                                    echo "It's not too late! Grab a diary today and start your journaling journey."
+                                } else {
+                                    echo "A bit behind, aren't we? To achieve your January goal, you need a diary. Time to get one and get started!"
+                                }
+                            }
+
+                            if (params.QUOTE?.toBoolean() && params.BUY_DIARY?.toBoolean()) {
+                                echo "Great job writing a quote that reflects your mood today! It's a beautiful way to connect with your emotions and express yourself."
+                            } else if (!params.QUOTE?.toBoolean() && params.BUY_DIARY?.toBoolean()) {
+                                echo "Remember to write a quote that matches your mood today! It's a small yet meaningful step to bring clarity to your thoughts and emotions."
+                            } else if (params.QUOTE?.toBoolean() && !params.BUY_DIARY?.toBoolean()) {
+                                echo "Did you write on a random paper? Writing is the most important-don't give up!"
+                            } else {
+                                echo "Can't write without a diary? Buy one!"
+                            }
+                          
+                            break```
