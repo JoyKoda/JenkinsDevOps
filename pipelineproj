@@ -126,10 +126,10 @@ pipeline {
                         ]
 
                         if (completed) {
-                            echo "Bravo ${params.NAME}! You have completed the goal: ${goal}"
+                            echo "Congrats ${params.NAME}! You have completed the goal: ${goal}"
                             progress.add([goal: goal, status: 'Completed'])
                         } else {
-                            echo "Dommage ${params.NAME}! You can complete the goal '${goal}' later."
+                            echo "It's ok ${params.NAME}! You can complete the goal '${goal}' later."
                             progress.add([goal: goal, status: 'Not Completed'])
                         }
                     }
@@ -140,7 +140,7 @@ pipeline {
             }
         }
 
-        stage('Notify Completion') {
+        stage('Completion Notification') {
             steps {
                 script {
                     echo "Thank you, ${params.NAME}! Your progress for ${params.MONTH} has been recorded."
