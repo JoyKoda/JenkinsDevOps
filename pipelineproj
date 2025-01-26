@@ -45,17 +45,25 @@ pipeline {
 
                         echo "Executing for month: ${currentMonth}"
 
-                        input message: "Voici les objectifs pour ${currentMonth}", parameters: goals.collect { goal ->
-                            booleanParam(name: goal, defaultValue: false, description: goal)
-                        }
+                        def timePeriods = ["1-10", "11-20", "21-end"]
 
-                        script {
-                            def completedGoals = [:]
-                            goals.each { goal ->
-                                completedGoals[goal] = params[goal]
+                        for (int j = 0; j < goals.size(); j++) {
+                            def goal = goals[j]
+                            def period = timePeriods[j]
+
+                            echo "Objective: ${goal} (Period: ${period})"
+
+                            input message: "Avez-vous complété cet objectif pour ${currentMonth} (${period}) ?", parameters: [
+                                booleanParam(name: goal, defaultValue: false, description: goal)
+                            ]
+
+                            script {
+                                if (!env.USER_PROGRESS.containsKey(currentMonth)) {
+                                    env.USER_PROGRESS[currentMonth] = [:]
+                                }
+
+                                env.USER_PROGRESS[currentMonth][goal] = params[goal]
                             }
-
-                            env.USER_PROGRESS[currentMonth] = completedGoals
                         }
 
                         echo "Progress for ${currentMonth}: ${env.USER_PROGRESS[currentMonth]}"
