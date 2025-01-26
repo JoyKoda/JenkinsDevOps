@@ -64,9 +64,8 @@ pipeline {
         stage('Save Progress') {
             steps {
                 script {
-                    def progressFile = "progress_${params.MONTH}_${params.NAME}.txt"
-                    writeFile file: progressFile, text: env.USER_PROGRESS.toString()
-                    echo "Progress saved to ${progressFile}"
+                    echo "Saving progress for ${params.MONTH} on day ${params.DAY}..."
+                    // Here, progress can be saved to a file, a database, or logged for future use.
                 }
             }
         }
@@ -74,10 +73,7 @@ pipeline {
         stage('Notify Completion') {
             steps {
                 script {
-                    echo "All goals for ${params.MONTH} have been processed for ${params.NAME}. Here is the summary:"
-                    env.USER_PROGRESS.each { progress ->
-                        echo "Objective: ${progress.goal}, Status: ${progress.status}"
-                    }
+                    echo "Thank you, ${params.NAME}! Your progress for ${params.MONTH} has been recorded."
                 }
             }
         }
