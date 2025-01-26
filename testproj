@@ -1,4 +1,4 @@
-```pipeline {
+pipeline {
     agent any 
 
     parameters {
@@ -54,4 +54,4 @@ stage('Check Goals for the day') {
                                 echo "Can't write without a diary? Buy one!"
                             }
                           
-                            break```
+                            break
