@@ -3,95 +3,110 @@ pipeline {
 
     parameters {
         choice(name: 'MONTH', choices: ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'], description: 'Select the month to validate objectives')
+        string(name: 'DAY', defaultValue: '1', description: 'Enter the day of the month (e.g., 1, 15, 25)')
     }
 
     stages {
-        stage('Check Objectives') {
+        stage('Determine Current Objective') {
             steps {
                 script {
                     // Define objectives and their timeframes
                     def objectives = [
                         'JANUARY': [
-                            [task: 'Buy a Diary if still not the case.', range: '1-10'],
-                            [task: 'Write about your feeling of the past years.', range: '11-20'],
-                            [task: 'Write about your daily experience.', range: '21-31']
+                            [task: 'Buy a Diary if still not the case.', start: 1, end: 10],
+                            [task: 'Write about your feeling of the past years.', start: 11, end: 20],
+                            [task: 'Write about your daily experience.', start: 21, end: 31]
                         ],
                         'FEBRUARY': [
-                            [task: 'Change the furniture arrangement.', range: '1-10'],
-                            [task: 'Buy and dispose some/new plants.', range: '11-20'],
-                            [task: 'Buy a new and more flexible desk (sit-stand).', range: '21-28']
+                            [task: 'Change the furniture arrangement.', start: 1, end: 10],
+                            [task: 'Buy and dispose some/new plants.', start: 11, end: 20],
+                            [task: 'Buy a new and more flexible desk (sit-stand).', start: 21, end: 28]
                         ],
                         'MARCH': [
-                            [task: 'Exercise more (make yourself a program that you have to respect).', range: '1-10'],
-                            [task: 'Eat better (healthy meals, local ingredients, less meat,...).', range: '11-20'],
-                            [task: 'Have more time for yourself.', range: '21-31']
+                            [task: 'Exercise more (make yourself a program that you have to respect).', start: 1, end: 10],
+                            [task: 'Eat better (healthy meals, local ingredients, less meat,...).', start: 11, end: 20],
+                            [task: 'Have more time for yourself.', start: 21, end: 31]
                         ],
                         'APRIL': [
-                            [task: 'Helping an elderly to cross the street.', range: '1-10'],
-                            [task: 'Give clothes to a charity for children.', range: '11-20'],
-                            [task: 'Bring breakfast for colleagues at the office.', range: '21-30']
+                            [task: 'Helping an elderly to cross the street.', start: 1, end: 10],
+                            [task: 'Give clothes to a charity for children.', start: 11, end: 20],
+                            [task: 'Bring breakfast for colleagues at the office.', start: 21, end: 30]
                         ],
                         'MAY': [
-                            [task: 'Take dance lessons (whatever the dance is, learn it !).', range: '1-10'],
-                            [task: 'Sign up for Marathon (or semi-marathon).', range: '11-20'],
-                            [task: 'Take a trip with someone you never had (friend, family member, partner).', range: '21-31']
+                            [task: 'Take dance lessons (whatever the dance is, learn it !).', start: 1, end: 10],
+                            [task: 'Sign up for Marathon (or semi-marathon).', start: 11, end: 20],
+                            [task: 'Take a trip with someone you never had (friend, family member, partner).', start: 21, end: 31]
                         ],
                         'JUNE': [
-                            [task: 'Visit parent’s home.', range: '1-10'],
-                            [task: 'Organise a trip with your friends.', range: '11-20'],
-                            [task: '3 restaurants with your girlfriend.', range: '21-30']
+                            [task: 'Visit parent’s home.', start: 1, end: 10],
+                            [task: 'Organise a trip with your friends.', start: 11, end: 20],
+                            [task: '3 restaurants with your girlfriend.', start: 21, end: 30]
                         ],
                         'JULY': [
-                            [task: 'Enjoy a Summer festival.', range: '1-10'],
-                            [task: 'Have a party with your relatives.', range: '11-20'],
-                            [task: 'Go to a concert of one of your friend’s favorite artists.', range: '21-31']
+                            [task: 'Enjoy a Summer festival.', start: 1, end: 10],
+                            [task: 'Have a party with your relatives.', start: 11, end: 20],
+                            [task: 'Go to a concert of one of your friend’s favorite artists.', start: 21, end: 31]
                         ],
                         'AUGUST': [
-                            [task: 'Find a hotel near the sea for a week-end.', range: '1-10'],
-                            [task: 'Rent a van in order to go to the destination.', range: '11-20'],
-                            [task: 'Buy camping equipment.', range: '21-31']
+                            [task: 'Find a hotel near the sea for a week-end.', start: 1, end: 10],
+                            [task: 'Rent a van in order to go to the destination.', start: 11, end: 20],
+                            [task: 'Buy camping equipment.', start: 21, end: 31]
                         ],
                         'SEPTEMBER': [
-                            [task: 'Find a few hiking trails near your place.', range: '1-10'],
-                            [task: 'Find relatives with whom you will go.', range: '11-20'],
-                            [task: 'Choose two hikes you will go on with them.', range: '21-30']
+                            [task: 'Find a few hiking trails near your place.', start: 1, end: 10],
+                            [task: 'Find relatives with whom you will go.', start: 11, end: 20],
+                            [task: 'Choose two hikes you will go on with them.', start: 21, end: 30]
                         ],
                         'OCTOBER': [
-                            [task: 'Learn a new language.', range: '1-10'],
-                            [task: 'Read 3 books.', range: '11-20'],
-                            [task: 'Learn a manual activity (origami, calligraphy, lock picking).', range: '21-31']
+                            [task: 'Learn a new language.', start: 1, end: 10],
+                            [task: 'Read 3 books.', start: 11, end: 20],
+                            [task: 'Learn a manual activity (origami, calligraphy, lock picking).', start: 21, end: 31]
                         ],
                         'NOVEMBER': [
-                            [task: 'Find an instrument that you like.', range: '1-10'],
-                            [task: 'Take classes and lessons to learn better.', range: '11-20'],
-                            [task: 'Record a cover for a song that you like and show it to your relatives.', range: '21-30']
+                            [task: 'Find an instrument that you like.', start: 1, end: 10],
+                            [task: 'Take classes and lessons to learn better.', start: 11, end: 20],
+                            [task: 'Record a cover for a song that you like and show it to your relatives.', start: 21, end: 30]
                         ],
                         'DECEMBER': [
-                            [task: 'Create a daily breathing program (meditation).', range: '1-10'],
-                            [task: 'Attend a yoga class.', range: '11-20'],
-                            [task: 'Ask those you love to come take a yoga class with you.', range: '21-31']
+                            [task: 'Create a daily breathing program (meditation).', start: 1, end: 10],
+                            [task: 'Attend a yoga class.', start: 11, end: 20],
+                            [task: 'Ask those you love to come take a yoga class with you.', start: 21, end: 31]
                         ]
                     ]
 
-                    // Retrieve selected month and its objectives
+                    // Retrieve selected month and day
                     def selectedMonth = params.MONTH
+                    def selectedDay = params.DAY.toInteger()
+
+                    // Retrieve objectives for the selected month
                     def selectedObjectives = objectives[selectedMonth]
 
-                    // Generate user input for each objective
-                    def completedTasks = input message: "Validate objectives for ${selectedMonth}",
-                                           parameters: selectedObjectives.collect { obj -> booleanParam(name: obj.task, description: "${obj.task} (Days: ${obj.range})", defaultValue: false) }
+                    // Determine current objective based on the day
+                    def currentObjective = selectedObjectives.find { obj -> selectedDay >= obj.start && selectedDay <= obj.end }
+                    def overdueObjectives = selectedObjectives.findAll { obj -> selectedDay > obj.end && !fileExists("${selectedMonth}_${obj.task.replaceAll('[^a-zA-Z0-9]', '_')}_completed.txt") }
 
-                    // Save the results of completed tasks
-                    def results = selectedObjectives.collectEntries { obj -> [obj.task, completedTasks[obj.task]] }
-
-                    // Print results
-                    echo "Validation Results for ${selectedMonth}:"
-                    results.each { task, done ->
-                        echo "- ${task}: ${done ? 'COMPLETED' : 'NOT COMPLETED'}"
+                    // Display overdue objectives
+                    if (overdueObjectives) {
+                        echo "Overdue Objectives:"
+                        overdueObjectives.each { obj ->
+                            echo "- ${obj.task} (Days: ${obj.start}-${obj.end})"
+                        }
                     }
 
-                    // Save results to a file for future reference
-                    writeFile file: "${selectedMonth}_progress.json", text: groovy.json.JsonOutput.toJson(results)
+                    // Display current objective or notify if no objectives match the date
+                    if (currentObjective) {
+                        echo "Current Objective: ${currentObjective.task} (Days: ${currentObjective.start}-${currentObjective.end})"
+                        def completed = input message: "Have you completed the objective: '${currentObjective.task}'?", parameters: [booleanParam(name: 'Completed', defaultValue: false)]
+
+                        if (completed) {
+                            echo "Marking objective as completed."
+                            writeFile file: "${selectedMonth}_${currentObjective.task.replaceAll('[^a-zA-Z0-9]', '_')}_completed.txt", text: "completed"
+                        } else {
+                            echo "Objective not completed."
+                        }
+                    } else {
+                        echo "No current objective for the selected day (${selectedDay})."
+                    }
                 }
             }
         }
