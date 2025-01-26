@@ -9,7 +9,7 @@ pipeline {
 
     stages {
 
-        stage('Set Goals for the Month') {
+        stage('Your Goals for the month') {
             steps {
                 script {
                     def goals = []
