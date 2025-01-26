@@ -135,6 +135,7 @@ pipeline {
                     }
 
                     writeFile file: "progress_${params.MONTH}_${params.NAME}.txt", text: progress.toString()
+                    echo "Progress has been successfully saved to progress_${params.MONTH}_${params.NAME}.txt."
                 }
             }
         }
