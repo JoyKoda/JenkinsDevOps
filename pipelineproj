@@ -2,112 +2,96 @@ pipeline {
     agent any
 
     parameters {
-        choice(name: 'MONTH', choices: ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'], description: 'Select the month you want to view objectives for')
+        choice(name: 'MONTH', choices: ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'], description: 'Select the month to validate objectives')
     }
 
     stages {
-        stage('Display Objectives') {
+        stage('Check Objectives') {
             steps {
                 script {
-                    // Define objectives per month
+                    // Define objectives and their timeframes
                     def objectives = [
                         'JANUARY': [
-                            'Buy a Diary if still not the case.',
-                            'Write about your feeling of the past years.',
-                            'Write about your daily experience.'
+                            [task: 'Buy a Diary if still not the case.', range: '1-10'],
+                            [task: 'Write about your feeling of the past years.', range: '11-20'],
+                            [task: 'Write about your daily experience.', range: '21-31']
                         ],
                         'FEBRUARY': [
-                            'Change the furniture arrangement.',
-                            'Buy and dispose some/new plants.',
-                            'Buy a new and more flexible desk (sit-stand).'
+                            [task: 'Change the furniture arrangement.', range: '1-10'],
+                            [task: 'Buy and dispose some/new plants.', range: '11-20'],
+                            [task: 'Buy a new and more flexible desk (sit-stand).', range: '21-28']
                         ],
                         'MARCH': [
-                            'Exercise more (make yourself a program that you have to respect).',
-                            'Eat better (healthy meals, local ingredients, less meat,...).',
-                            'Have more time for yourself.'
+                            [task: 'Exercise more (make yourself a program that you have to respect).', range: '1-10'],
+                            [task: 'Eat better (healthy meals, local ingredients, less meat,...).', range: '11-20'],
+                            [task: 'Have more time for yourself.', range: '21-31']
                         ],
                         'APRIL': [
-                            'Helping an elderly to cross the street.',
-                            'Give clothes to a charity for children.',
-                            'Bring breakfast for colleagues at the office.'
+                            [task: 'Helping an elderly to cross the street.', range: '1-10'],
+                            [task: 'Give clothes to a charity for children.', range: '11-20'],
+                            [task: 'Bring breakfast for colleagues at the office.', range: '21-30']
                         ],
                         'MAY': [
-                            'Take dance lessons (whatever the dance is, learn it !).',
-                            'Sign up for Marathon (or semi-marathon).',
-                            'Take a trip with someone you never had (friend, family member, partner).'
+                            [task: 'Take dance lessons (whatever the dance is, learn it !).', range: '1-10'],
+                            [task: 'Sign up for Marathon (or semi-marathon).', range: '11-20'],
+                            [task: 'Take a trip with someone you never had (friend, family member, partner).', range: '21-31']
                         ],
                         'JUNE': [
-                            'Visit parent’s home.',
-                            'Organise a trip with your friends.',
-                            '3 restaurants with your girlfriend.'
+                            [task: 'Visit parent’s home.', range: '1-10'],
+                            [task: 'Organise a trip with your friends.', range: '11-20'],
+                            [task: '3 restaurants with your girlfriend.', range: '21-30']
                         ],
                         'JULY': [
-                            'Enjoy a Summer festival.',
-                            'Have a party with your relatives.',
-                            'Go to a concert of one of your friend’s favorite artists.'
+                            [task: 'Enjoy a Summer festival.', range: '1-10'],
+                            [task: 'Have a party with your relatives.', range: '11-20'],
+                            [task: 'Go to a concert of one of your friend’s favorite artists.', range: '21-31']
                         ],
                         'AUGUST': [
-                            'Find a hotel near the sea for a week-end.',
-                            'Rent a van in order to go to the destination.',
-                            'Buy camping equipment.'
+                            [task: 'Find a hotel near the sea for a week-end.', range: '1-10'],
+                            [task: 'Rent a van in order to go to the destination.', range: '11-20'],
+                            [task: 'Buy camping equipment.', range: '21-31']
                         ],
                         'SEPTEMBER': [
-                            'Find a few hiking trails near your place.',
-                            'Find relatives with whom you will go.',
-                            'Choose two hikes you will go on with them.'
+                            [task: 'Find a few hiking trails near your place.', range: '1-10'],
+                            [task: 'Find relatives with whom you will go.', range: '11-20'],
+                            [task: 'Choose two hikes you will go on with them.', range: '21-30']
                         ],
                         'OCTOBER': [
-                            'Learn a new language.',
-                            'Read 3 books.',
-                            'Learn a manual activity (origami, calligraphy, lock picking).'
+                            [task: 'Learn a new language.', range: '1-10'],
+                            [task: 'Read 3 books.', range: '11-20'],
+                            [task: 'Learn a manual activity (origami, calligraphy, lock picking).', range: '21-31']
                         ],
                         'NOVEMBER': [
-                            'Find an instrument that you like.',
-                            'Take classes and lessons to learn better.',
-                            'Record a cover for a song that you like and show it to your relatives.'
+                            [task: 'Find an instrument that you like.', range: '1-10'],
+                            [task: 'Take classes and lessons to learn better.', range: '11-20'],
+                            [task: 'Record a cover for a song that you like and show it to your relatives.', range: '21-30']
                         ],
                         'DECEMBER': [
-                            'Create a daily breathing program (meditation).',
-                            'Attend a yoga class.',
-                            'Ask those you love to come take a yoga class with you.'
+                            [task: 'Create a daily breathing program (meditation).', range: '1-10'],
+                            [task: 'Attend a yoga class.', range: '11-20'],
+                            [task: 'Ask those you love to come take a yoga class with you.', range: '21-31']
                         ]
                     ]
 
-                    // Retrieve the objectives for the selected month
+                    // Retrieve selected month and its objectives
                     def selectedMonth = params.MONTH
                     def selectedObjectives = objectives[selectedMonth]
 
-                    // Display objectives to the user
-                    echo "Selected Month: ${selectedMonth}"
-                    echo "Objectives:"
-                    selectedObjectives.each { obj ->
-                        echo "- ${obj}"
-                    }
-                }
-            }
-        }
+                    // Generate user input for each objective
+                    def completedTasks = input message: "Validate objectives for ${selectedMonth}",
+                                           parameters: selectedObjectives.collect { obj -> booleanParam(name: obj.task, description: "${obj.task} (Days: ${obj.range})", defaultValue: false) }
 
-        stage('User Interaction') {
-            steps {
-                script {
-                    // Generate a checkbox form for the user to tick completed tasks
-                    def completedTasks = input message: "Mark completed tasks for ${params.MONTH}",
-                                           parameters: objectives[params.MONTH].collect { task -> booleanParam(name: task, description: task, defaultValue: false) }
+                    // Save the results of completed tasks
+                    def results = selectedObjectives.collectEntries { obj -> [obj.task, completedTasks[obj.task]] }
 
-                    // Save completed tasks
-                    def results = [:]
-                    objectives[params.MONTH].each { task ->
-                        results[task] = completedTasks[task]
-                    }
-
-                    // Print and save results
-                    echo "Tasks completed for ${params.MONTH}:"
+                    // Print results
+                    echo "Validation Results for ${selectedMonth}:"
                     results.each { task, done ->
-                        echo "- ${task}: ${done ? 'DONE' : 'NOT DONE'}"
+                        echo "- ${task}: ${done ? 'COMPLETED' : 'NOT COMPLETED'}"
                     }
 
-                    // Save results in an environment variable or file
-                    writeFile file: "${params.MONTH}_progress.json", text: groovy.json.JsonOutput.toJson(results)
+                    // Save results to a file for future reference
+                    writeFile file: "${selectedMonth}_progress.json", text: groovy.json.JsonOutput.toJson(results)
                 }
             }
         }
@@ -115,7 +99,7 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline execution completed.'
+            echo 'Pipeline execution finished.'
         }
     }
 }
