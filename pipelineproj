@@ -43,7 +43,12 @@ pipeline {
                         def currentMonth = months[i]
                         def goals = goalsByMonth[currentMonth]
 
-                        echo "Executing for month: ${currentMonth}"
+                        echo "--- Executing for month: ${currentMonth} ---"
+
+                        if (goals == null || goals.isEmpty()) {
+                            echo "No goals defined for ${currentMonth}"
+                            continue
+                        }
 
                         def timePeriods = ["1-10", "11-20", "21-end"]
 
@@ -51,13 +56,20 @@ pipeline {
                             def goal = goals[j]
                             def period = timePeriods[j]
 
-                            echo "Objective: ${goal} (Period: ${period})"
+                            echo "Processing Objective: ${goal} (Period: ${period})"
 
-                            input message: "Avez-vous complété cet objectif pour ${currentMonth} (${period}) ?", parameters: [
-                                booleanParam(name: goal, defaultValue: false, description: goal)
-                            ]
+                            try {
+                                input message: "Avez-vous complété cet objectif pour ${currentMonth} (${period}) ?", parameters: [
+                                    booleanParam(name: goal, defaultValue: false, description: goal)
+                                ]
+                            } catch (Exception e) {
+                                echo "Input skipped or failed for goal: ${goal}"
+                                continue
+                            }
 
                             script {
+                                echo "Saving progress for ${goal} in ${currentMonth}"
+
                                 if (!env.USER_PROGRESS.containsKey(currentMonth)) {
                                     env.USER_PROGRESS[currentMonth] = [:]
                                 }
